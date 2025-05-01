@@ -10,7 +10,7 @@ on:
     - cron: '0 0 * * *'  # Daily at midnight UTC
 
 env:
-  EMBEDDING_STORE: faiss  # Change to "faiss" or "mongo" as needed or "both"
+  EMBEDDING_STORE: faiss  # Change to "faiss", "mongo", or "both"
 
 jobs:
   process_pdfs:
@@ -46,6 +46,7 @@ jobs:
           done
 
       - name: Print MongoDB summary
+        if: env.EMBEDDING_STORE == 'mongo' || env.EMBEDDING_STORE == 'both'
         run: |
           echo "MongoDB Summary:"
           find data/ -name "*.pdf" -print0 | while IFS= read -r -d $'\0' pdf_file; do
