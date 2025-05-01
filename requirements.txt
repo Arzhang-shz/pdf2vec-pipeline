@@ -1,0 +1,7 @@
+PyMuPDF
+sentence-transformers
+faiss-cpu
+pymongo
+pytest
+reportlab
+langchain
