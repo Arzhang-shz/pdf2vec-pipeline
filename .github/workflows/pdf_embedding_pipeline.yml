@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 0 * * *'  # Daily at midnight UTC
 
+env:
+  EMBEDDING_STORE: faiss  # Change to "faiss" or "mongo" as needed or "both"
+
 jobs:
   process_pdfs:
     runs-on: ubuntu-latest
@@ -21,6 +24,14 @@ jobs:
         with:
           python-version: 3.9
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -28,7 +39,10 @@ jobs:
         run: |
           find data/ -name "*.pdf" -print0 | while IFS= read -r -d $'\0' pdf_file; do
             echo "Processing $pdf_file"
-            PYTHONPATH=. python pipelines/run_pipeline.py "$pdf_file" --faiss_index_path faiss_index.faiss --chunk_size 512
+            PYTHONPATH=. python pipelines/run_pipeline.py "$pdf_file" \
+              --faiss_index_path faiss_index.faiss \
+              --chunk_size 512 \
+              --store "$EMBEDDING_STORE"
           done
 
       - name: Print MongoDB summary
@@ -39,12 +53,12 @@ jobs:
           done
 
       # Optional: Upload FAISS index to S3
-      #- name: Configure AWS credentials
-      #  uses: aws-actions/configure-aws-credentials@v4
-      #  with:
-      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #    aws-region: us-east-1
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
 
-      #- name: Upload FAISS index to S3
-      #  run: aws s3 cp faiss_index.faiss s3://your-bucket-name/faiss_index.faiss
+      # - name: Upload FAISS index to S3
+      #   run: aws s3 cp faiss_index.faiss s3://your-bucket-name/faiss_index.faiss
