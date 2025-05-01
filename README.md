@@ -63,7 +63,7 @@ The `vector_stores/mongodb_handler.py` file uses the following environment varia
 1.  **Process a single PDF file:**
 
     ```bash
-    python pipelines/run_pipeline.py <pdf_file_path> --faiss_index_path <faiss_index_path> --chunk_size <chunk_size>
+    PYTHONPATH=. python pipelines/run_pipeline.py <pdf_file_path> --faiss_index_path <faiss_index_path> --chunk_size <chunk_size>
     ```
 
 2.  **Process all PDFs in a folder:**
@@ -77,7 +77,7 @@ The `vector_stores/mongodb_handler.py` file uses the following environment varia
 To process a single PDF file:
 
 ```bash
-python pipelines/run_pipeline.py data/example.pdf --faiss_index_path faiss_index.faiss --chunk_size 512
+PYTHONPATH=. python pipelines/run_pipeline.py data/example.pdf --faiss_index_path faiss_index.faiss --chunk_size 512
 ```
 
 **Note:** Replace `<pdf_file_path>`, `<folder_path>`, `<faiss_index_path>`, and `<chunk_size>` with the actual paths and values.
