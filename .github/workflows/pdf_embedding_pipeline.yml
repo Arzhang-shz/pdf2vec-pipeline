@@ -1,0 +1,50 @@
+name: PDF Embedding Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**.pdf'
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+
+jobs:
+  process_pdfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Process PDF files
+        run: |
+          find data/ -name "*.pdf" -print0 | while IFS= read -r -d $'\0' pdf_file; do
+            echo "Processing $pdf_file"
+            PYTHONPATH=. python pipelines/run_pipeline.py "$pdf_file" --faiss_index_path faiss_index.faiss --chunk_size 512
+          done
+
+      - name: Print MongoDB summary
+        run: |
+          echo "MongoDB Summary:"
+          find data/ -name "*.pdf" -print0 | while IFS= read -r -d $'\0' pdf_file; do
+            PYTHONPATH=. python pipelines/run_pipeline.py "$pdf_file" --summary
+          done
+
+      # Optional: Upload FAISS index to S3
+      #- name: Configure AWS credentials
+      #  uses: aws-actions/configure-aws-credentials@v4
+      #  with:
+      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #    aws-region: us-east-1
+
+      #- name: Upload FAISS index to S3
+      #  run: aws s3 cp faiss_index.faiss s3://your-bucket-name/faiss_index.faiss
