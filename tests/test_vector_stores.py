@@ -1,21 +1,21 @@
 import pytest
-from vector_stores.mongodb_handler import save_to_mongodb
-from vector_stores.faiss_handler import save_to_faiss
 import os
 import faiss
 import pymongo
+from vector_stores.mongodb_handler import save_to_mongodb
+from vector_stores.faiss_handler import save_to_faiss
 
+@pytest.mark.skipif(os.getenv("SKIP_MONGO_TESTS") == "true", reason="Skipping MongoDB test in CI")
 def test_mongodb_insertion():
     embedding = [0.1, 0.2, 0.3]
     metadata = {"test": "test"}
     try:
         save_to_mongodb(embedding, metadata)
-        # Add assertion to check if the data was actually inserted
         client = pymongo.MongoClient('mongodb://localhost:27017/')
         db = client['pdf_embeddings']
         collection = db['embeddings']
         assert collection.count_documents({"metadata.test": "test"}) > 0
-        collection.delete_many({"metadata.test": "test"}) # Clean up
+        collection.delete_many({"metadata.test": "test"})  # Clean up
         client.close()
     except Exception as e:
         pytest.fail(f"MongoDB insertion failed: {e}")
