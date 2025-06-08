@@ -1,6 +1,6 @@
 import pytest
-from ..vector_stores.mongodb_handler import save_to_mongodb
-from ..vector_stores.faiss_handler import save_to_faiss
+from vector_stores.mongodb_handler import save_to_mongodb
+from vector_stores.faiss_handler import save_to_faiss
 import os
 import faiss
 import pymongo

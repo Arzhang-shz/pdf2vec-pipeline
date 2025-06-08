@@ -1,4 +1,4 @@
-from ..embedder.embed import generate_embeddings
+from embedder.embed import generate_embeddings
 
 def test_generate_embeddings():
     text = "This is a test sentence."

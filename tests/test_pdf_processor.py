@@ -1,5 +1,5 @@
 import pytest
-from ..pdf_processor.extractor import extract_text_from_pdf
+from pdf_processor.extractor import extract_text_from_pdf
 from reportlab.pdfgen import canvas
 import os
 
